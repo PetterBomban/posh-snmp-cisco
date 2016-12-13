@@ -1,11 +1,11 @@
-## Modified version of Invoke-SNMPget from https://vwiki.co.uk/SNMP_and_PowerShell
+## Based on Invoke-SNMPget from https://vwiki.co.uk/SNMP_and_PowerShell
 
 ## Load SharpSnmpLib 
 1..2 | foreach {
     [System.Reflection.Assembly]::LoadFrom("C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\SharpSnmpLib.Full.dll") | Out-Null
 }
 
-. "C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\Send-ToInfluxDB.ps1"
+. "$PSScriptRoot\Send-ToInfluxDB.ps1"
 
 function Invoke-SnmpGet () {
 
