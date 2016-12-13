@@ -2,10 +2,12 @@
 
 ## Load SharpSnmpLib 
 1..2 | foreach {
-    [System.Reflection.Assembly]::LoadFrom("C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\SharpSnmpLib.Full.dll")
+    [System.Reflection.Assembly]::LoadFrom("C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\SharpSnmpLib.Full.dll") | Out-Null
 }
 
-function Invoke-SNMPget () {
+. "C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\Send-ToInfluxDB.ps1"
+
+function Invoke-SnmpGet () {
 
     # $OIDs can be a single OID string, or an array of OID strings
     # $TimeOut is in msec, 0 or -1 for infinite
@@ -53,22 +55,31 @@ function Invoke-SNMPget () {
         Write-Host "SNMP Get error: $_"
         Return $null
     }
-    
+
     $res = @()
     foreach ($var in $msg)
     {
-        $line = "" | Select OID, Data
-        $line.OID = $var.Id.ToString()
-        $line.Data = $var.Data.ToString()
-        $res += $line
+        switch ($var.Id)
+        {
+            ".1.3.6.1.4.1.9.9.48.1.1.1.5.1" { $Measurement = "mem.used"}
+            ".1.3.6.1.4.1.9.9.48.1.1.1.6.1" { $Measurement = "mem.free"}
+        }
+        $data = [PSCustomObject]@{
+            measurement = $Measurement
+            value = $var.Data.ToString()
+            device = $sIP
+        }
+        $res += $data
     }
-    
+
     $res
 }
 
-Invoke-SNMPget `
+$Get = Invoke-SnmpGet `
     -sIP "192.168.0.1" `
     -sOIDs "1.3.6.1.4.1.9.9.48.1.1.1.5.1", "1.3.6.1.4.1.9.9.48.1.1.1.6.1" `
     -Community "ikt-fag.no" `
     -UDPport 162 `
     -TimeOut 5000
+
+Send-ToInfluxDB -InfluxServer "192.168.0.30" -InfluxPort 8086 -InfluxDB "ciscotest" -InfluxUser "root" -InfluxPass "Passord1" -Data $Get
