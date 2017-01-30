@@ -56,6 +56,9 @@ function Invoke-SnmpGet () {
         Return $null
     }
 
+    $msg
+
+<#
     $res = @()
     foreach ($var in $msg)
     {
@@ -63,6 +66,7 @@ function Invoke-SnmpGet () {
         {
             ".1.3.6.1.4.1.9.9.48.1.1.1.5.1" { $Measurement = "mem.used"}
             ".1.3.6.1.4.1.9.9.48.1.1.1.6.1" { $Measurement = "mem.free"}
+            ".1.3.6.1.4.1.9.9.109.1.1.1.1.3.1" { $Measurement = "cpu.usage-percent"}
         }
         $data = [PSCustomObject]@{
             measurement = $Measurement
@@ -73,13 +77,22 @@ function Invoke-SnmpGet () {
     }
 
     $res
+    #>
 }
+
+$oids = @(
+    "1.3.6.1.4.1.9.9.48.1.1.1.5.1", ## mem.used
+    "1.3.6.1.4.1.9.9.48.1.1.1.6.1", ## mem.free
+    "1.3.6.1.4.1.9.9.109.1.1.1.1.3.1" ## cpu.usage-percent
+)
 
 $Get = Invoke-SnmpGet `
     -sIP "192.168.0.1" `
-    -sOIDs "1.3.6.1.4.1.9.9.48.1.1.1.5.1", "1.3.6.1.4.1.9.9.48.1.1.1.6.1" `
+    -sOIDs $oids `
     -Community "ikt-fag.no" `
     -UDPport 162 `
     -TimeOut 5000
 
-Send-ToInfluxDB -InfluxServer "192.168.0.30" -InfluxPort 8086 -InfluxDB "ciscotest" -InfluxUser "root" -InfluxPass "Passord1" -Data $Get
+$Get
+
+#Send-ToInfluxDB -InfluxServer "192.168.0.30" -InfluxPort 8086 -InfluxDB "" -InfluxUser "" -InfluxPass "" -Data $Get
