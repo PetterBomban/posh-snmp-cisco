@@ -33,7 +33,7 @@ function Invoke-SnmpWalk ([string]$sIP, $sOIDstart, [string]$Community = "public
     
     $res = @()
     foreach ($var in $results) {
-        $line = "" | Select OID, Data
+        $line = "" | Select-Object OID, Data
         $line.OID = $var.Id.ToString()
         $line.Data = $var.Data.ToString()
         $res += $line
