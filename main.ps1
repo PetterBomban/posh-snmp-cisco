@@ -5,8 +5,6 @@
     [System.Reflection.Assembly]::LoadFrom("C:\Users\admin\Documents\GitHub\posh-influx-snmp-cisco\SharpSnmpLib.Full.dll") | Out-Null
 }
 
-. "$PSScriptRoot\Send-ToInfluxDB.ps1"
-
 function Invoke-SnmpGet () {
 
     # $OIDs can be a single OID string, or an array of OID strings
@@ -56,9 +54,6 @@ function Invoke-SnmpGet () {
         Return $null
     }
 
-    $msg
-
-<#
     $res = @()
     foreach ($var in $msg)
     {
@@ -68,6 +63,7 @@ function Invoke-SnmpGet () {
             ".1.3.6.1.4.1.9.9.48.1.1.1.6.1" { $Measurement = "mem.free"}
             ".1.3.6.1.4.1.9.9.109.1.1.1.1.3.1" { $Measurement = "cpu.usage-percent"}
         }
+
         $data = [PSCustomObject]@{
             measurement = $Measurement
             value = $var.Data.ToString()
@@ -75,9 +71,7 @@ function Invoke-SnmpGet () {
         }
         $res += $data
     }
-
     $res
-    #>
 }
 
 $oids = @(
@@ -94,5 +88,4 @@ $Get = Invoke-SnmpGet `
     -TimeOut 5000
 
 $Get
-
 #Send-ToInfluxDB -InfluxServer "192.168.0.30" -InfluxPort 8086 -InfluxDB "" -InfluxUser "" -InfluxPass "" -Data $Get
