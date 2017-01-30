@@ -1,6 +1,6 @@
 ## posh-influx-snmp-cisco
 
-**PS:** This is currently very work in progress. The goal is to be able to get the most relevant information from Cisco devices (ASA, IOS, NX-OS) via SNMP, and the push it to InfluxDB and Grafana. Right now I'm only working on ASA.
+**PS:** This is currently very work in progress. The goal is to be able to get the most relevant information from Cisco devices (ASA, IOS, NX-OS) via SNMP, and then push it to InfluxDB and Grafana. Right now I'm only working on ASA.
 
 SNMP walk and SNMP get gotten from https://vwiki.co.uk/SNMP_and_PowerShell.
 
