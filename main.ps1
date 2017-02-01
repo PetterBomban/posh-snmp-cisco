@@ -38,6 +38,8 @@ function Start-GatheringData
 
     Write-Verbose "Stating to send data to InfluxDb"
 
+    ## TODO: How do we send $Collection to Influx?
+
     Send-ToInfluxDb `
         -InfluxServer $InfluxServer `
         -InfluxPort $InfluxPort `
