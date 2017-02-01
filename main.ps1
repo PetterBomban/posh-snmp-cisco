@@ -1,3 +1,55 @@
+function Start-GatheringData
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $True)]
+        [hashtable]$Devices,
+
+        [Parameter(Mandatory = $True)]
+        [String]$CommunityString
+    )
+    ## For getting snmp data
+    # . .\Invoke-SnmpGet.ps1
+    ## For sending the data to InfluxDb
+    # . .\Send-ToInfluxDB
+
+    ## Load the required snmp dll.
+    [System.Reflection.Assembly]::LoadFrom(".\SharpSnmpLib.Full.dll") | Out-Null
+
+    ## Used for collecting objects. Number depends on $Devices.Count
+    $Collection = @()
+    foreach ($Device in $Devices)
+    {
+        Write-Verbose $Device.OID
+        Write-Verbose "Getting SNMP data from $($Device.IpAddress)"
+
+        $Get = Invoke-SnmpGet `
+            -sIP $Device.IpAddress `
+            -sOIDs $Device.OID `
+            -Community $CommunityString `
+            -UDPport 162 `
+            -TimeOut 5000
+
+        Write-Verbose $Get
+
+        $Collection += $Get
+    }
+
+    Write-Verbose "Stating to send data to InfluxDb"
+
+    Send-ToInfluxDb `
+        -InfluxServer $InfluxServer `
+        -InfluxPort $InfluxPort `
+        -InfluxDB $InfluxDB `
+        -InfluxUser $InfluxUser `
+        -InfluxPass $InfluxPass
+    
+    Write-Verbose "Data sent to InfluxDb!"
+    Write-Output $Collection
+}
+## Example usage:
+
 ## ASA only for now
 $AsaOid = @(
     "1.3.6.1.4.1.9.9.48.1.1.1.5.1", ## mem.used
@@ -15,23 +67,17 @@ $Devices = @{
         "IpAddress" = "192.168.0.1"
         "OID" = $AsaOid
     }
-    "IOS" = 1
-    "NX-OS" = 1
+    "IOS" = $null
+    "NX-OS" = $null
 }
 
-function Start-GatheringData
-{
-    param
-    (
-        [Parameter(Mandatory = $True)]
-        [hashtable]$Devices
-    )
-
-    foreach ($Device in $Devices)
-    {
-        #Write-Output $Device.Key
-        Write-Output $Device.OID
-    }
-}
-
-Start-GatheringData -Devices $Devices
+## TODO: Add support for Get-Credential
+Start-GatheringData `
+    -Devices $Devices `
+    -CommunityString "ikt-fag.no" `
+    -InfluxServer "192.168.0.30" `
+    -InfluxPort 8086 `
+    -InfluxDB "ciscotest" `
+    -InfluxUser "root" `
+    -InfluxPass "Passord1"
+    -Verbose

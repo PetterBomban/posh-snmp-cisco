@@ -52,14 +52,3 @@ function Invoke-SnmpGet () {
 
     $msg
 }
-<#
-$Get = Invoke-SnmpGet `
-    -sIP "192.168.0.1" `
-    -sOIDs $oids `
-    -Community "ikt-fag.no" `
-    -UDPport 162 `
-    -TimeOut 5000
-
-$Get
-#Send-ToInfluxDB -InfluxServer "192.168.0.30" -InfluxPort 8086 -InfluxDB "" -InfluxUser "" -InfluxPass "" -Data $Get
-#>
